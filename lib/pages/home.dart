@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:apple_maps_flutter/apple_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,10 +12,46 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late AppleMapController mapController;
-  double speed = 67.0; // This will be updated by GPS data later
+  double speed = 0.0;
+  late StreamSubscription<Position> positionStream;
 
   void _onMapCreated(AppleMapController controller) {
     mapController = controller;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _startListeningToGPS();
+  }
+
+  Future<void> _startListeningToGPS() async {
+    // Request location permission
+    final permission = await Geolocator.requestPermission();
+    
+    if (permission == LocationPermission.denied || 
+        permission == LocationPermission.deniedForever) {
+      return;
+    }
+
+    // Start listening to position updates
+    positionStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 0, // Update on every change
+      ),
+    ).listen((Position position) {
+      setState(() {
+        // Convert m/s to km/h (position.speed is in m/s)
+        speed = position.speed * 3.6;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    positionStream.cancel();
+    super.dispose();
   }
 
   @override
