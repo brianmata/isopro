@@ -4,13 +4,9 @@ workflows:
     instance_type: mac_mini_m1
     max_build_duration: 120
     environment:
-      ios_signing:
-        provisioning_profiles:
-          - name: default
       vars:
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
-        APP_ID: io.codemagic.isopro
     triggering:
       events:
         - push
