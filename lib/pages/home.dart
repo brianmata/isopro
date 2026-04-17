@@ -26,11 +26,23 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _startListeningToGPS() async {
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      print('Location services are disabled.');
+      return;
+    }
+
     // Request location permission
     final permission = await Geolocator.requestPermission();
     
-    if (permission == LocationPermission.denied || 
-        permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.denied) {
+      print('Location permissions are denied');
+      return;
+    }
+    
+    if (permission == LocationPermission.deniedForever) {
+      print('Location permissions are permanently denied');
       return;
     }
 
@@ -45,6 +57,16 @@ class _HomePageState extends State<HomePage> {
         // Convert m/s to km/h (position.speed is in m/s)
         speed = position.speed * 3.6;
       });
+      
+      // Update map camera to follow user location
+      mapController.animateCamera(
+        CameraUpdateOptions(
+          bearing: position.heading,
+          tilt: 0,
+          zoom: 17,
+          target: LatLng(position.latitude, position.longitude),
+        ),
+      );
     });
   }
 
