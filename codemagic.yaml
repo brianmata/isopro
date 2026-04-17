@@ -17,14 +17,14 @@ workflows:
         script: |
           flutter clean
           flutter pub get
-      - name: Build iOS
+      - name: Build iOS Unsigned
         script: |
-          flutter build ios --release --no-codesign
-          cd build/ios/iphoneos
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -derivedDataPath build/ios -arch arm64 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+      - name: Create IPA
+        script: |
           mkdir -p Payload
-          mv Runner.app Payload/
-          zip -r isopro.ipa Payload/
-          mv isopro.ipa ../../../
+          cp -r build/ios/Release-iphoneos/Runner.app Payload/
+          zip -r isopro.ipa Payload
     artifacts:
       - isopro.ipa
     publishing:
