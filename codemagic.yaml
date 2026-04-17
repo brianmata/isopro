@@ -4,6 +4,8 @@ workflows:
     instance_type: mac_mini_m1
     max_build_duration: 120
     environment:
+      flutter: stable
+      xcode: latest
       vars:
         XCODE_WORKSPACE: "ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
@@ -13,6 +15,7 @@ workflows:
     scripts:
       - name: Install dependencies
         script: |
+          flutter clean
           flutter pub get
       - name: Build iOS
         script: |
